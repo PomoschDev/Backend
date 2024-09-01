@@ -12,6 +12,7 @@ uvicorn = "^0.30.6"
 pydantic = "^2.8.2"
 pydantic-settings = "^2.4.0"
 alembic = "^1.13.2"
+sqlalchemy = { extras = ["asyncio"], version = "^2.0.21" }
 
 
 [build-system]
