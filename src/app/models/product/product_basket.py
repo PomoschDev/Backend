@@ -1,7 +1,6 @@
 from sqlalchemy import Integer, ForeignKey
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
-from src.app.models.product.product_shop import ProductShopORM
 from src.app.models.user.user import UserORM
 from src.database.database_metadata import Base
 
@@ -16,7 +15,7 @@ class ProductBasketORM(Base):
     )
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    product: Mapped[ProductShopORM] = relationship(
+    product: Mapped["ProductShopORM"] = relationship(
         "ProductShopORM", back_populates="baskets"
     )
 

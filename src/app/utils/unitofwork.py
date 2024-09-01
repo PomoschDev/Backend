@@ -2,11 +2,16 @@ from abc import ABC, abstractmethod
 from typing import Type
 
 from src.database.database import database_accessor
+from ..repositories.product.product import ProductShopRepository
+from ..repositories.user.user import UserRepository
 from ...database.db_accessor import DatabaseAccessor
 
 
 class IUnitOfWork(ABC):
     """Interface for Unit of Work pattern."""
+
+    product_shop: Type[ProductShopRepository]
+    user: Type[UserRepository]
 
     @abstractmethod
     def __init__(self):
@@ -37,6 +42,8 @@ class UnitOfWork:
 
     async def __aenter__(self):
         """Enter the context manager."""
+        self.product_shop = ProductShopRepository(self.session)
+        self.user = UserRepository(self.session)
 
     async def __aexit__(self, *args) -> None:
         await self.rollback()
