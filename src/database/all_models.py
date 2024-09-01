@@ -1,3 +1,6 @@
+from src.app.models.godsend.godsend import GodSendORM
+from src.app.models.godsend.godsend_photo import GodSendPhotoORM
+from src.app.models.order.order import OrderORM
 from src.app.models.product.product_basket import ProductBasketORM
 from src.app.models.product.product_photo import ProductPhotoORM
 from src.app.models.product.product_shop import ProductShopORM
@@ -14,4 +17,7 @@ __all__ = [
     "CompanyUserORM",
     "UserPhotoORM",
     "NaturalUserORM",
+    "GodSendORM",
+    "GodSendPhotoORM",
+    "OrderORM",
 ]

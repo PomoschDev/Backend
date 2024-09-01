@@ -3,8 +3,15 @@ from typing import Type
 
 from src.database.database import database_accessor
 from ..repositories.godsend.godsend import GodSendRepository
+from ..repositories.godsend.godsend_photo import GodSendPhotoRepository
+from ..repositories.order.order import OrderRepository
 from ..repositories.product.product import ProductShopRepository
+from ..repositories.product.product_basket import ProductBasketRepository
+from ..repositories.product.product_photo import ProductPhotoRepository
+from ..repositories.user.company_user import CompanyUserRepository
+from ..repositories.user.natural_user import NaturalUserRepository
 from ..repositories.user.user import UserRepository
+from ..repositories.user.user_photo import UserPhotoRepository
 from ...database.db_accessor import DatabaseAccessor
 
 
@@ -14,6 +21,13 @@ class IUnitOfWork(ABC):
     product_shop: Type[ProductShopRepository]
     user: Type[UserRepository]
     godsend: Type[GodSendRepository]
+    godsend_photo: Type[GodSendPhotoRepository]
+    order: Type[OrderRepository]
+    product_basket: Type[ProductBasketRepository]
+    product_photo: Type[ProductPhotoRepository]
+    company_user: Type[CompanyUserRepository]
+    natural_user: Type[NaturalUserRepository]
+    user_photo: Type[UserPhotoRepository]
 
     @abstractmethod
     def __init__(self):
@@ -47,6 +61,13 @@ class UnitOfWork:
         self.product_shop = ProductShopRepository(self.session)
         self.user = UserRepository(self.session)
         self.godsend = GodSendRepository(self.session)
+        self.godsend_photo = GodSendPhotoRepository(self.session)
+        self.order = OrderRepository(self.session)
+        self.product_basket = ProductBasketRepository(self.session)
+        self.product_photo = ProductPhotoRepository(self.session)
+        self.company_user = CompanyUserRepository(self.session)
+        self.natural_user = NaturalUserRepository(self.session)
+        self.user_photo = UserPhotoRepository(self.session)
 
     async def __aexit__(self, *args) -> None:
         await self.rollback()

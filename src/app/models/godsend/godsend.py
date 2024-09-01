@@ -12,12 +12,12 @@ from src.database.types import UUID_PK, str_256
 
 
 class GodSendORM(Base, CreationDateMixin, IsActiveMixin):
-    __tablename__ = "godsend"
+    __tablename__ = "god_send"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, nullable=False)
+    id: Mapped[UUID_PK]
     creator_id: Mapped[int] = mapped_column(Integer, nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
-    passport: Mapped[UUID_PK]
+    passport: Mapped[str_256]
     card_number_gods: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     card_number: Mapped[str_256]
     country: Mapped[str] = mapped_column(String, nullable=False)
@@ -28,10 +28,16 @@ class GodSendORM(Base, CreationDateMixin, IsActiveMixin):
     category: Mapped[CategoryGodSend] = mapped_column(
         SQLAEnum(CategoryGodSend), nullable=False, default=CategoryGodSend.OtherCategory
     )
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), nullable=False)
+    moderator_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), nullable=False)
     check: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
     data_check: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     photos: Mapped[List["GodSendPhotoORM"]] = relationship(
-        "GodSendPhotoORM", back_populates="user"
+        "GodSendPhotoORM", back_populates="god_send"
+    )
+    order: Mapped[List["OrderORM"]] = relationship(
+        "OrderORM", back_populates="god_send"
+    )
+    moderator: Mapped["UserORM"] = relationship(
+        "UserORM", back_populates="moderated_god_sends"
     )
