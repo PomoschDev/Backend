@@ -2,6 +2,7 @@ from sqlalchemy import Integer, ForeignKey
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from src.app.models.product.product_shop import ProductShopORM
+from src.app.models.user.user import UserORM
 from src.database.database_metadata import Base
 
 
@@ -18,3 +19,5 @@ class ProductBasketORM(Base):
     product: Mapped[ProductShopORM] = relationship(
         "ProductShopORM", back_populates="baskets"
     )
+
+    user: Mapped[UserORM] = relationship("UserORM", back_populates="baskets")

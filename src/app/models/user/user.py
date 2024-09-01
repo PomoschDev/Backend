@@ -23,3 +23,7 @@ class UserORM(Base, CreationDateMixin):
     photos: Mapped[List["UserPhotoORM"]] = relationship(
         "UserPhotoORM", back_populates="user"
     )
+
+    baskets: Mapped[List["ProductBasketORM"]] = relationship(
+        "ProductBasketORM", back_populates="user"
+    )
