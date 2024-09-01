@@ -1,7 +1,7 @@
 from typing import List, Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import String, Boolean, Integer
+from sqlalchemy import String, Boolean, Integer, Enum as SQLAEnum
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from src.app.models.mixin.mixin import CreationDateMixin
@@ -17,7 +17,9 @@ class UserORM(Base):
     email: Mapped[str] = mapped_column(String, nullable=False)
     username: Mapped[str] = mapped_column(String, nullable=False)
     status: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    role: Mapped[Optional[str]] = mapped_column(String, nullable=True, default=None)
+    role: Mapped[UserRole] = mapped_column(
+        SQLAEnum(UserRole), nullable=False, default=UserRole.PersonRole
+    )
     company: Mapped[Optional[bool]] = mapped_column(
         Boolean, nullable=True, default=False
     )

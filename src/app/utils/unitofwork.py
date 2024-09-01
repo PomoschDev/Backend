@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Type
 
 from src.database.database import database_accessor
+from ..repositories.godsend.godsend import GodSendRepository
 from ..repositories.product.product import ProductShopRepository
 from ..repositories.user.user import UserRepository
 from ...database.db_accessor import DatabaseAccessor
@@ -12,6 +13,7 @@ class IUnitOfWork(ABC):
 
     product_shop: Type[ProductShopRepository]
     user: Type[UserRepository]
+    godsend: Type[GodSendRepository]
 
     @abstractmethod
     def __init__(self):
@@ -44,6 +46,7 @@ class UnitOfWork:
         """Enter the context manager."""
         self.product_shop = ProductShopRepository(self.session)
         self.user = UserRepository(self.session)
+        self.godsend = GodSendRepository(self.session)
 
     async def __aexit__(self, *args) -> None:
         await self.rollback()

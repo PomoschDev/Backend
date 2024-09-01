@@ -7,3 +7,4 @@ class UserRole(str, Enum):
     PartnerRole = "PartnerRole"
     VendorRole = "VendorRole"
     SuperUserRole = "SuperUserRole"
+    PersonRole = "PersonRole"

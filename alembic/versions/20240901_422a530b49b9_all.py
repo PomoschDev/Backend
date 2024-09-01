@@ -1,8 +1,8 @@
-"""products
+"""all
 
-Revision ID: df0c6b036fed
-Revises: d6d4a84e78b7
-Create Date: 2024-09-01 17:18:05.331578
+Revision ID: 422a530b49b9
+Revises: 
+Create Date: 2024-09-01 22:46:47.089717
 
 """
 
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "df0c6b036fed"
-down_revision: Union[str, None] = "d6d4a84e78b7"
+revision: str = "422a530b49b9"
+down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -45,7 +45,19 @@ def upgrade() -> None:
         sa.Column("email", sa.String(), nullable=False),
         sa.Column("username", sa.String(), nullable=False),
         sa.Column("status", sa.String(), nullable=True),
-        sa.Column("role", sa.String(), nullable=True),
+        sa.Column(
+            "role",
+            sa.Enum(
+                "StaffRole",
+                "AdminRole",
+                "PartnerRole",
+                "VendorRole",
+                "SuperUserRole",
+                "PersonRole",
+                name="userrole",
+            ),
+            nullable=False,
+        ),
         sa.Column("company", sa.Boolean(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -95,7 +107,7 @@ def upgrade() -> None:
     op.create_table(
         "user_photo",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("user_id", sa.Integer(), nullable=False),
+        sa.Column("user_id", sa.UUID(), nullable=False),
         sa.Column("photo_name", sa.String(), nullable=False),
         sa.Column("photo_url", sa.String(), nullable=False),
         sa.ForeignKeyConstraint(
