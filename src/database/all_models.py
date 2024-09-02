@@ -9,6 +9,7 @@ from src.app.models.user.natural_user import NaturalUserORM
 from src.app.models.user.user import UserORM
 from src.app.models.user.user_photo import UserPhotoORM
 from src.app.models.order.order_photo import OrderPhotoORM
+from src.app.models.donat.donat import DonatORM
 
 __all__ = [
     "ProductShopORM",
@@ -22,4 +23,5 @@ __all__ = [
     "GodSendPhotoORM",
     "OrderORM",
     "OrderPhotoORM",
+    "DonatORM",
 ]

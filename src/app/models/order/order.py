@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from sqlalchemy import (
     UUID,
@@ -46,3 +46,4 @@ class OrderORM(Base, CreationDateMixin, IsActiveMixin):
 
     god_send: Mapped["GodSendORM"] = relationship("GodSendORM", back_populates="order")
     user: Mapped["UserORM"] = relationship("UserORM", back_populates="order")
+    donats: Mapped[List["DonatORM"]] = relationship("DonatORM", back_populates="order")

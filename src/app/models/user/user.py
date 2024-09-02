@@ -40,3 +40,5 @@ class UserORM(Base, CreationDateMixin):
         "GodSendORM", back_populates="moderator"
     )
     order: Mapped[List["OrderORM"]] = relationship("OrderORM", back_populates="user")
+
+    donats: Mapped[List["DonatORM"]] = relationship("DonatORM", back_populates="user")

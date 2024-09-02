@@ -15,4 +15,4 @@ class OrderPhotoORM(Base):
         DateTime, default=datetime.now, onupdate=datetime.now
     )
 
-    order: Mapped["OrderORM"] = relationship("OrderORM", back_populates="photos")
+    order: Mapped["OrderORM"] = relationship("OrderORM", back_populates="photo")
