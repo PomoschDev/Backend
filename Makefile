@@ -5,4 +5,4 @@ run-server:
 	@poetry run python3 run.py
 
 postgres:
-	docker-compose up -d
+	docker-compose -f bd.yaml up -d
