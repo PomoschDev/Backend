@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Type
 
+from src.app.repositories.order.order_photo import OrderPhotoRepository
 from src.database.database import database_accessor
 from ..repositories.godsend.godsend import GodSendRepository
 from ..repositories.godsend.godsend_photo import GodSendPhotoRepository
@@ -28,6 +29,7 @@ class IUnitOfWork(ABC):
     company_user: Type[CompanyUserRepository]
     natural_user: Type[NaturalUserRepository]
     user_photo: Type[UserPhotoRepository]
+    order_photo: Type[OrderPhotoRepository]
 
     @abstractmethod
     def __init__(self):
@@ -68,6 +70,7 @@ class UnitOfWork:
         self.company_user = CompanyUserRepository(self.session)
         self.natural_user = NaturalUserRepository(self.session)
         self.user_photo = UserPhotoRepository(self.session)
+        self.order_photo = OrderPhotoRepository(self.session)
 
     async def __aexit__(self, *args) -> None:
         await self.rollback()
