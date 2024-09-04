@@ -12,3 +12,7 @@ run-server:
 postgres:
 	docker-compose -f bd.yaml up -d
 	alembic upgrade head
+
+app:
+	docker-compose up -d
+
