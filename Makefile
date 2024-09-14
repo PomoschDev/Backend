@@ -1,9 +1,5 @@
-.PHONY: run-server postgres app
+.PHONY: run-server postgres app migrate
 
-
-app:
-	pip install poetry
-	poetry install
 
 run-server:
 	@echo "Starting server..."
@@ -13,6 +9,6 @@ postgres:
 	docker-compose -f bd.yaml up -d
 	alembic upgrade head
 
-app:
-	docker-compose up -d
+migrate:
+	alembic upgrade head
 

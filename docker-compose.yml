@@ -1,12 +1,31 @@
 services:
+  postgres:
+    container_name: postgres_pomosch
+    image: postgres:13.3
+    environment:
+      POSTGRES_DB: ${DB__NAME}
+      POSTGRES_USER: ${DB__USER}
+      POSTGRES_PASSWORD: ${DB__PASS}
+    ports:
+      - "${DB__PORT}:${DB__DB_PORT}"
+    volumes:
+      - db_data:/var/lib/postgresql/data:cached
+    network_mode: host
+
+  redis:
+    image: redis
+    container_name: redis_pomosch
+    restart: unless-stopped
+    ports:
+      - '${REDIS__PORT}:${REDIS__PORT}'
+    network_mode: host
+
   backend:
-    container_name: backend_pomosch 
+    container_name: backend_pomosch
     build:
       context: .
       dockerfile: Dockerfile
-    command: >
-      sh -c "alembic upgrade head &&
-             uvicorn src.main:app --host ${BACKEND_SERVER__HOST} --port ${BACKEND_SERVER__PORT} --reload"
+    command: sh /app/start.sh
     tty: true
     env_file:
       - .env
@@ -15,20 +34,10 @@ services:
     depends_on:
       - postgres
       - redis
-  
-  postgres:
-    container_name: postgres_pomosch
-    image: postgres:13
-    environment:
-      POSTGRES_DB: ${DB__NAME}
-      POSTGRES_USER: ${DB__USER}
-      POSTGRES_PASSWORD: ${DB__PASS}
-    ports:
-      - "${DB__PORT}:${DB__DB_PORT}"
+    volumes:
+      - ./backend/research_data:/app/backend/research_data
+    network_mode: host
 
-  redis:
-    image: redis
-    container_name: redis_pomosch
-    restart: unless-stopped
-    ports:
-        - '${REDIS__PORT}:${REDIS__PORT}'
+
+volumes:
+  db_data:

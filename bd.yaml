@@ -16,7 +16,7 @@ services:
     container_name: redis_pomosch
     restart: unless-stopped
     ports:
-        - '6379:6379'
+        - '${REDIS__PORT}:${REDIS__PORT}'
 
 volumes:
   db_data:

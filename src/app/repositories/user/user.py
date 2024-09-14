@@ -1,3 +1,4 @@
+from sqlalchemy import insert, literal_column
 from src.app.models.user.user import UserORM
 from src.app.utils.repository import SQLAlchemyRepository
 

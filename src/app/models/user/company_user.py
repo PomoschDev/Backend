@@ -5,6 +5,7 @@ from sqlalchemy import String, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.app.models.user.user import UserORM
+from src.app.schemas.user.company_user import CompanyUserSchema
 from src.database.types import str_256
 
 
@@ -22,3 +23,14 @@ class CompanyUserORM(UserORM):
     card_number: Mapped[str_256]
 
     user: Mapped[UserORM] = relationship("UserORM", back_populates="company_users")
+
+    def get_schema(self) -> CompanyUserSchema:
+        return CompanyUserSchema(
+            id=self.id,
+            user_id=self.user_id,
+            title=self.title,
+            phone=self.phone,
+            address=self.address,
+            site=self.site,
+            inn=self.inn,
+        )

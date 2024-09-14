@@ -100,7 +100,9 @@ class SQLAlchemyRepository(AbstractRepository):
         return res
 
     async def get_by_id(self, id: int):
-        return await self.session.get(self.model, id)
+        stmt = select(self.model).filter_by(id=id)
+        res = await self.session.execute(stmt)
+        return res.scalar_one().get_schema()
 
     async def get_count_by_param(self, **filter_by) -> int:
         stmt = select(self.model).filter_by(**filter_by)

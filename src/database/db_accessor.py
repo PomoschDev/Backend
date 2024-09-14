@@ -21,7 +21,6 @@ class DatabaseAccessor:
     SEARCH_HOST_REGEXP = compile(r"host=(.+?)\s")
 
     def __init__(self, db_settings: DBSettings, statement_cache_size: int = 0):
-        # print(id(self), "Вызвали конструктор создания дб ацессора")
         self._db_settings = db_settings
         self._dsn = db_settings.dsn_async
 
