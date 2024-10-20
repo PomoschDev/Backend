@@ -5,7 +5,7 @@ from pydantic import computed_field
 
 class AppSettings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file="../../.env",
+        env_file="../.env",
         env_file_encoding="utf-8",
         extra="ignore",
         case_sensitive=False,
@@ -17,8 +17,6 @@ class AppSettings(BaseSettings):
     DEBUG: bool
     SECRET_KEY: str
     SAVE_PATH: str
-    # server_host: str
-    # server_port: int
     METHODS: List[str]
     HEADERS: List[str]
     ALGORITHM: str

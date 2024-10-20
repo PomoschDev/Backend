@@ -3,102 +3,43 @@ from contextlib import asynccontextmanager
 from re import compile
 from typing import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.pool import NullPool
+import grpc
 
+
+from ServiceDatabase.protos.gen.python.DatabaseService import DatabaseService_pb2_grpc
+from ServiceDatabase.protos.gen.python.DatabaseService import DatabaseService_pb2
 from src.app_config.config_db import DBSettings
 
 
-# class DatabaseAccessor(Singleton):
 class DatabaseAccessor:
-    _db_settings = None
-    DEFAULT_ACQUIRE_TIMEOUT: float = 1
-    DEFAULT_REFRESH_DELAY: float = 1
-    DEFAULT_REFRESH_TIMEOUT: float = 5
-    DEFAULT_MASTER_AS_REPLICA_WEIGHT: float = 0.0
-    DEFAULT_STOPWATCH_WINDOW_SIZE: int = 128
-    SEARCH_HOST_REGEXP = compile(r"host=(.+?)\s")
+    _instance = None
 
-    def __init__(self, db_settings: DBSettings, statement_cache_size: int = 0):
+    def __new__(cls, db_settings: DBSettings):
+        if cls._instance is None:
+            cls._instance = super(DatabaseAccessor, cls).__new__(cls)
+            cls._instance._initialize(db_settings)
+        return cls._instance
+
+    def _initialize(self, db_settings: DBSettings):
         self._db_settings = db_settings
-        self._dsn = db_settings.dsn_async
+        self._initialize_grpc()
 
-        self._session_makers = OrderedDict()
-        self._statement_cache_size = statement_cache_size
-        self._async_session_maker = None
-
-    def set_settings(self, db_settings: DBSettings, statement_cache_size: int = 0):
-        self._db_settings = db_settings
-        self._dsn = (
-            f"postgresql+asyncpg://{self._db_settings.USER}:{self._db_settings.PASS}"
-            f"@{self._db_settings.HOST}:{self._db_settings.PORT}/{self._db_settings.NAME}"
-        )
-        self._session_makers = OrderedDict()
-        self._statement_cache_size = statement_cache_size
-        self._async_session_maker = None
+    def _initialize_grpc(self):
+        """Инициализация gRPC канала и стуба."""
+        self._channel = grpc.insecure_channel(f"{self._db_settings.HOST}:{self._db_settings.PORT}")
+        self._stub = DatabaseService_pb2_grpc.DatabaseServiceStub(self._channel)
 
     async def run(self) -> None:
-        await self._set_engine()
-
-    async def _set_engine(self) -> None:
-        if "sqlite" in self._dsn:
-            self.engine = create_async_engine(
-                self._dsn,
-                connect_args={"check_same_thread": False},  # Важно для SQLite
-                echo=False,
-            )
-        else:
-            self.engine = create_async_engine(
-                self._dsn,
-                pool_size=self._db_settings.DB_POOL_SIZE,
-                max_overflow=self._db_settings.DB_MAX_OVERFLOW,
-                future=True,
-                echo=False,
-            )
-
-    def new_run(self) -> None:
-        self._set_engine_sync()
-
-    def _set_engine_sync(self) -> None:
-        self.engine = create_async_engine(
-            self._dsn,
-            pool_pre_ping=True,
-            # pool_size=self._db_settings.DB_POOL_SIZE,
-            # max_overflow=self._db_settings.DB_MAX_OVERFLOW,
-            poolclass=NullPool,
-            future=True,
-            echo=False,
-        )
-
-    async def init_db(self, Base) -> None:
-        """use it if u not use alembic"""
-        async with self.engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-
-    def _create_session(self) -> None:
-        self._async_session_maker = sessionmaker(
-            bind=self.engine, expire_on_commit=False, class_=AsyncSession
-        )
-
-    def get_sync_session(self):
-        return scoped_session(
-            sessionmaker(
-                bind=self.engine,
-                expire_on_commit=False,
-            )
-        )
-
-    def get_async_session_maker(self) -> sessionmaker:
-        return sessionmaker(
-            bind=self.engine, expire_on_commit=False, class_=AsyncSession
-        )
-
-    @asynccontextmanager
-    async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
-        self._create_session()
-        async with self._async_session_maker() as session:
-            yield session
+        try:
+            request = DatabaseService_pb2.Empty()
+            response = self._stub.Users.future(request) 
+            print("gRPC service is available.")
+        except grpc.RpcError as e:
+            print(f"gRPC service is not available: {e}")
+            
+    def get_stub(self):
+        """Возвращает gRPC стуб."""
+        return self._stub
 
     async def stop(self) -> None:
-        await self.engine.dispose()
+        self._channel.close() 

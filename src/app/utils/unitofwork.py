@@ -1,38 +1,16 @@
 from abc import ABC, abstractmethod
-from typing import Type
+from typing import Type, Any
 
-from src.app.repositories.donat.donat import DonatRepository
-from src.app.repositories.order.order_photo import OrderPhotoRepository
-from src.database.database import database_accessor
-from ..repositories.godsend.godsend import GodSendRepository
-from ..repositories.godsend.godsend_photo import GodSendPhotoRepository
-from ..repositories.order.order import OrderRepository
-from ..repositories.product.product import ProductShopRepository
-from ..repositories.product.product_basket import ProductBasketRepository
-from ..repositories.product.product_photo import ProductPhotoRepository
-from ..repositories.user.company_user import CompanyUserRepository
-from ..repositories.user.natural_user import NaturalUserRepository
-from ..repositories.user.user import UserRepository
-from ..repositories.user.user_photo import UserPhotoRepository
-from ...database.db_accessor import DatabaseAccessor
-
+from src.app.repositories.metauser.auth_token import AuthTokenRepository
+from src.app.repositories.metauser.auth_user import AuthRepository
+from src.database.db_accessor import DatabaseAccessor
+from src.app_config.config_db import DBSettings
 
 class IUnitOfWork(ABC):
     """Interface for Unit of Work pattern."""
-
-    product_shop: Type[ProductShopRepository]
-    user: Type[UserRepository]
-    godsend: Type[GodSendRepository]
-    godsend_photo: Type[GodSendPhotoRepository]
-    order: Type[OrderRepository]
-    product_basket: Type[ProductBasketRepository]
-    product_photo: Type[ProductPhotoRepository]
-    company_user: Type[CompanyUserRepository]
-    natural_user: Type[NaturalUserRepository]
-    user_photo: Type[UserPhotoRepository]
-    order_photo: Type[OrderPhotoRepository]
-    donat: Type[DonatRepository]
-
+    auth: Type[AuthRepository]
+    token: Type[AuthTokenRepository]
+    
     @abstractmethod
     def __init__(self):
         """Initialize the Unit of Work instance."""
@@ -42,45 +20,34 @@ class IUnitOfWork(ABC):
         """Enter the context manager."""
 
     @abstractmethod
-    async def __aexit__(self, *args):
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Exit the context manager."""
 
     @abstractmethod
     async def commit(self):
         """Commit changes."""
 
-    @abstractmethod
-    async def rollback(self):
-        """Rollback changes."""
-
-
-class UnitOfWork:
-    def __init__(self, database_accessor_p: None | DatabaseAccessor = None):
-        if database_accessor_p is None:
-            database_accessor_p = database_accessor
-        self.session_fabric = database_accessor_p.get_async_session_maker()
+class UnitOfWork(IUnitOfWork):
+    def __init__(self):
+        self.database_accessor = DatabaseAccessor(db_settings=DBSettings())
+        self.repositories = {}
+        self.auth = AuthRepository(self.database_accessor)  # Инициализация auth
+        self.token = AuthTokenRepository(self.database_accessor)  # Инициализация token
 
     async def __aenter__(self):
-        """Enter the context manager."""
-        self.product_shop = ProductShopRepository(self.session)
-        self.user = UserRepository(self.session)
-        self.godsend = GodSendRepository(self.session)
-        self.godsend_photo = GodSendPhotoRepository(self.session)
-        self.order = OrderRepository(self.session)
-        self.product_basket = ProductBasketRepository(self.session)
-        self.product_photo = ProductPhotoRepository(self.session)
-        self.company_user = CompanyUserRepository(self.session)
-        self.natural_user = NaturalUserRepository(self.session)
-        self.user_photo = UserPhotoRepository(self.session)
-        self.order_photo = OrderPhotoRepository(self.session)
-        self.donat = DonatRepository(self.session)
+        return self
 
-    async def __aexit__(self, *args) -> None:
-        await self.rollback()
-        await self.session.close()
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+        await self.database_accessor.stop()  # Закрываем gRPC канал
 
     async def commit(self) -> None:
-        await self.session.commit()
+        # Здесь вы можете реализовать логику фиксации изменений
+        pass
 
-    async def rollback(self) -> None:
-        await self.session.rollback()
+    def register_repository(self, name: str, repository: Any) -> None:
+        """Register a repository with the unit of work."""
+        self.repositories[name] = repository
+
+    def get_repository(self, name: str) -> Any:
+        """Get a registered repository."""
+        return self.repositories.get(name)

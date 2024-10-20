@@ -12,12 +12,8 @@ class DBSettings(BaseSettings):
     )
     HOST: str
     PORT: str
-    NAME: str
     USER: str
     PASS: str
-    DB_POOL_SIZE: int
-    DB_MAX_OVERFLOW: int
-    DB_URL: str
 
     @cached_property
     def db_settings(self):
@@ -25,23 +21,18 @@ class DBSettings(BaseSettings):
 
     @cached_property
     def dsn_async(self):
+        # Используется для gRPC
         return (
-            f"postgresql+asyncpg://{self.USER}:{self.PASS}"
-            f"@{self.HOST}:{self.PORT}/{self.NAME}"
+            f"grpc+async://{self.USER}:{self.PASS}"
+            f"@{self.HOST}:{self.PORT}"
         )
 
     @cached_property
     def dsn_sync(self):
+        # Если потребуется синхронное подключение, можно добавить
         return (
-            f"postgresql+psycopg2://{self.USER}:{self.PASS}"
-            f"@{self.HOST}:{self.PORT}/{self.NAME}"
-        )
-
-    @cached_property
-    def db_to_script(self):
-        return (
-            f"postgresql://{self.USER}:{self.PASS}"
-            f"@{self.HOST}:{self.PORT}/{self.NAME}"
+            f"grpc://{self.USER}:{self.PASS}"
+            f"@{self.HOST}:{self.PORT}"
         )
 
 

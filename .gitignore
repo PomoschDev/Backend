@@ -172,3 +172,5 @@ nohup.out
 backend/backup_*
 
 /test_db.db
+
+ServiceDatabase/*
